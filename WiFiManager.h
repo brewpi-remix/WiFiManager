@@ -10,6 +10,9 @@
  * @license MIT
  */
 
+// Define ASYNC_WEBSERVER to use async
+
+#define ESP32
 
 #ifndef WiFiManager_h
 #define WiFiManager_h
@@ -52,7 +55,12 @@
       #include "user_interface.h"
     }
     #include <ESP8266WiFi.h>
-    #include <ESP8266WebServer.h>
+    #ifdef ASYNC_WEBSERVER
+        #include <ESPAsyncTCP.h>
+        #include <ESPAsyncWebServer.h>
+    #else
+        #include <WebServer.h>
+    #endif
 
     #ifdef WM_MDNS
         #include <ESP8266mDNS.h>
@@ -85,7 +93,12 @@
 
     #ifndef WEBSERVER_H
         #ifdef WM_WEBSERVERSHIM
-            #include <WebServer.h>
+            #ifdef ASYNC_WEBSERVER
+                #include <AsyncTCP.h>
+                #include <ESPAsyncWebServer.h>
+            #else
+                #include <WebServer.h>
+            #endif
         #else
             #include <ESP8266WebServer.h>
             // Forthcoming official ? probably never happening
@@ -403,9 +416,17 @@ class WiFiManager
     std::unique_ptr<DNSServer>        dnsServer;
 
     #if defined(ESP32) && defined(WM_WEBSERVERSHIM)
-        using WM_WebServer = WebServer;
+        #ifdef ASYNC_WEBSERVER
+            using WM_WebServer = AsyncWebServer;
+        #else
+            using WM_WebServer = WebServer;
+        #endif
     #else
-        using WM_WebServer = ESP8266WebServer;
+        #ifdef ASYNC_WEBSERVER
+            using WM_WebServer = AsyncWebServer;
+        #else
+            using WM_WebServer = ESP8266WebServer;
+        #endif
     #endif
     
     std::unique_ptr<WM_WebServer> server;
