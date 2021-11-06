@@ -12,8 +12,6 @@
 
 // Define ASYNC_WEBSERVER to use async
 
-#define ESP32
-
 #ifndef WiFiManager_h
 #define WiFiManager_h
 
